@@ -1,0 +1,38 @@
+export function formatTime(ts: number): string {
+  const d = new Date(ts)
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  return `${hh}:${mm}`
+}
+
+/**
+ * Очень простой парсер:
+ * **жирный** -> <strong>
+ * *курсив* -> <em>
+ * переносы строк -> <br/>
+ *
+ * ВАЖНО: сначала экранируем HTML, потом добавляем теги.
+ * Иначе пользователь может вставить <script> и т.п.
+ */
+export function formatMessageToHtml(raw: string): string {
+  const esc = escapeHtml(raw)
+
+  // **bold**
+  const bold = esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+  // *italic* (простенько, без сложных случаев)
+  const italic = bold.replace(/\*(.+?)\*/g, '<em>$1</em>')
+
+  // переносы строк
+  return italic.replace(/\r?\n/g, '<br/>')
+}
+
+function escapeHtml(s: string): string {
+  // вместо replaceAll используем replace(.../g...)
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
